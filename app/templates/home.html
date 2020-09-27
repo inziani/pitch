@@ -1,4 +1,44 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
 {% block content%}
-<h1>Welcome to pitchy pitchit and pitch your pitch!</h1>
+<div class="jumbotron">
+    <div class="container">
+      <h1 class="mb-3">welcome to pitchPitchit</h1>
+      <h3 class="mb-3">
+          Hello
+          {% if current_user.is_authenticated %}
+          {{ current_user.username }} {% else %}
+              Stranger
+          {% endif %}, our latest pitches...  
+      </h3>
+      <hr>
+      <br>
+      <br>
+      <div class="container">
+          {% for pitch in pitches.items %}
+            <h2> Title: {{pitch.title}}</h2>
+            <h3>Category: {{pitch.category}}</h3>
+            <h3>Content: {{pitch.content}}</h3>
+            <h3>Author: {{pitch.user_id}}</h3>
+            <hr>
+            <br>
+            <br>
+          {% endfor %}
+        {% for page_num in pitches.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+          {% if page_num %}
+            {% if pitches.page == page_num %}
+              <a class="btn btn-info btn-info mb-5" href="{{ url_for('main.home', page=page_num)}}">{{page_num}}</a>
+            {% else %}
+              <a class="btn btn-outline-info  mb-5" href="{{ url_for('main.home', page=page_num)}}">{{page_num}}</a>
+            {% endif %}
+          {% else %}
+            ...
+          {% endif %}
+        {% endfor %}
+        </div>
+
+</div>
+
+  
 {% endblock %}

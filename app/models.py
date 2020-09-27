@@ -1,7 +1,7 @@
 from app import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user, current_user
 from . import login_manager
 
 @login_manager.user_loader
@@ -11,13 +11,13 @@ def load_user(user_id):
 
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
   __tablename__ = 'users'
   id = db.Column(db.Integer, primary_key = True)
   username = db.Column(db.String(20), unique=True, nullable=False, index=True)
   email = db.Column(db.String(125), unique=True, nullable=False, index=True)
   image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
-  password_hash = db.Column(db.String(128), nullable=False)
+  password_hash = db.Column(db.String(80), nullable=False)
   pitches = db.relationship('Pitch', backref='user', lazy='dynamic')
   
   
@@ -27,11 +27,11 @@ class User(db.Model):
     raise AttributeError('password is not a readable attribute')
 
   @password.setter
-  def password(self):
+  def password(self, password):
     self.password_hash = generate_password_hash(password)
 
-  def verify_password(self):
-    return check_password_hash(self.password_hash, password)
+  def verify_password(self, password):
+    return check_password_hash(self.password_hash, password) 
 
   def __repr__(self):
     return f"User('{self.username}', '{self.email}', '{self.image_file}')"
@@ -56,14 +56,11 @@ class Pitch(db.Model):
 class Comment(db.Model):
   __tablename__ = 'comments'
   id = db.Column(db.Integer, primary_key = True)
-  comment = db.Column(db.String(255), nullable=False)
+  comment = db.Column(db.String(50), nullable=False)
   timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
   disabled = db.Column(db.Boolean)
   user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
   pitch_id = db.Column(db.Integer, db.ForeignKey('pitches.id'), nullable=False)
- 
- 
-
 
   def __repr__(self):
     return f"User('{self.user_id}', '{self.comment}', {self.timestamp})"

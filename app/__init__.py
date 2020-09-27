@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from config import config
+from flask_wtf.csrf import CSRFProtect, CSRFError
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
@@ -16,10 +17,9 @@ def create_app(config_name):
   
   bootstrap.init_app(app)
   login_manager.init_app(app)
-
   db.init_app(app)
-  # with app.app_context():
-  #   db.create_all()
+  csrf = CSRFProtect(app)
+
     
   from .main import main as main_blueprint
   app.register_blueprint(main_blueprint)
